@@ -1,5 +1,6 @@
 package com.example.firebasedemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -19,7 +20,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class RegisterAcitivity extends AppCompatActivity {
+public class RegisterActivity extends AppCompatActivity {
     private EditText email;
     private EditText password;
     private Button register;
@@ -49,9 +50,9 @@ public class RegisterAcitivity extends AppCompatActivity {
                 String text_password=password.getText().toString();
 
                 if(TextUtils.isEmpty(text_email) || TextUtils.isEmpty(text_password)){
-                    Toast.makeText(RegisterAcitivity.this, "Empty credentials!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "Empty credentials!", Toast.LENGTH_SHORT).show();
                 }else if(text_password.length()<6){
-                    Toast.makeText(RegisterAcitivity.this, "Password too short", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "Password too short", Toast.LENGTH_SHORT).show();
                 }else{
                     registerUser(text_email,text_password);
                 }
@@ -60,13 +61,15 @@ public class RegisterAcitivity extends AppCompatActivity {
     }
 
     private void registerUser(String email, String password) {
-        auth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(RegisterAcitivity.this, new OnCompleteListener<AuthResult>() {
+        auth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(RegisterAcitivity.this, "User registered!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "User registered!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                    finish();
                 }else{
-                    Toast.makeText(RegisterAcitivity.this, "Registration Failed!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "Registration Failed!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
