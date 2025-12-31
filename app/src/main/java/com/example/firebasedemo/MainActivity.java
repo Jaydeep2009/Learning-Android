@@ -36,7 +36,10 @@ public class MainActivity extends AppCompatActivity {
     private Button add;
     private ListView listView;
     FirebaseDatabase db = FirebaseDatabase.getInstance("https://test-a7945-default-rtdb.asia-southeast1.firebasedatabase.app");
+
     DatabaseReference myRef = db.getReference("message");
+
+    DatabaseReference reference= db.getReference().child("Languages");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
         logout=findViewById(R.id.logout);
         auth=FirebaseAuth.getInstance();
+
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,20 +83,20 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> list = new ArrayList<>();
         ArrayAdapter adapter= new ArrayAdapter<String>(this, R.layout.list_item,list);
         listView.setAdapter(adapter);
-
-        DatabaseReference reference= FirebaseDatabase.getInstance().getReference().child("Languages");
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot snapshot: dataSnapshot.getChildren()){
-
+                list.clear();
+                for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                    list.add(dataSnapshot.getValue().toString());
                 }
+                adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        })
+        });
     }
 }
