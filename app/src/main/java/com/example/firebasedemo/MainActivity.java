@@ -1,5 +1,6 @@
 package com.example.firebasedemo;
 
+import android.app.appsearch.observer.DocumentChangeInfo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,16 +18,23 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,10 +44,10 @@ public class MainActivity extends AppCompatActivity {
     private Button add;
     private ListView listView;
     FirebaseDatabase db = FirebaseDatabase.getInstance("https://test-a7945-default-rtdb.asia-southeast1.firebasedatabase.app");
+    DatabaseReference reference= db.getReference().child("Information");
 
-    DatabaseReference myRef = db.getReference("message");
 
-    DatabaseReference reference= db.getReference().child("Languages");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +74,9 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
+
+
+
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,22 +84,28 @@ public class MainActivity extends AppCompatActivity {
                 if(txt_name.isEmpty()){
                     Toast.makeText(MainActivity.this, "No name entered", Toast.LENGTH_SHORT).show();
                 }else{
-                    myRef.child("ProgrammingKnowledge").push().child("Name").setValue(txt_name);
+                    reference.push().setValue(txt_name);
+                    name.setText("");
                     Toast.makeText(MainActivity.this, "Data saved successfully!", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
 
-        ArrayList<String> list = new ArrayList<>();
-        ArrayAdapter adapter= new ArrayAdapter<String>(this, R.layout.list_item,list);
+
+
+
+        final ArrayList<String> list = new ArrayList<>();
+        final ArrayAdapter adapter= new ArrayAdapter<String>(this, R.layout.list_item,list);
         listView.setAdapter(adapter);
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 list.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    list.add(dataSnapshot.getValue().toString());
+                    Information info = dataSnapshot.getValue(Information.class);
+                    String txt= info.getName()+" : "+info.getEmail();
+                    list.add(txt);
                 }
                 adapter.notifyDataSetChanged();
             }
@@ -98,5 +115,39 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        //firestore
+
+//        FirebaseFirestore fs= FirebaseFirestore.getInstance();
+//        Map<String,Object> data= new HashMap<>();
+//        data.put("capital",false);
+//
+//        fs.collection("cities").document("PUN").set(data, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                if(task.isSuccessful()){
+//                    Toast.makeText(MainActivity.this, "Merge Successful", Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
+
+        //fetch data from firestore
+
+        DocumentReference docRef= FirebaseFirestore.getInstance().collection("cities").document("PUN");
+
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if(task.isSuccessful()){
+                    DocumentSnapshot doc= task.getResult();
+                    if(doc.exists()){
+                        Log.d("Document",doc.getData().toString());
+                    }else{
+                        Log.d("Document","No data");
+                    }
+                }
+            }
+        });
     }
+
 }

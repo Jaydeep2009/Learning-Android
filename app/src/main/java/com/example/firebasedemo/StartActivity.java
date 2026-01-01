@@ -1,5 +1,7 @@
 package com.example.firebasedemo;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +14,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class StartActivity extends AppCompatActivity {
@@ -51,5 +55,17 @@ public class StartActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        FirebaseUser user= FirebaseAuth.getInstance().getCurrentUser();
+
+        if(user!=null){
+            startActivity(new Intent(StartActivity.this,MainActivity.class).addFlags(FLAG_ACTIVITY_CLEAR_TASK));
+        }
     }
 }
